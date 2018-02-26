@@ -1,0 +1,34 @@
+FROM jenkins/jenkins:lts
+
+USER root
+
+#install Azure CLI
+RUN curl https://azurecliprod.blob.core.windows.net/release-2-0-25/debian_stretch_azure-cli_2.0.25-1_all.deb -o debian_stretch_azure-cli_2.0.25-1_all.deb && \
+    dpkg -i debian_stretch_azure-cli_2.0.25-1_all.deb
+
+#install AzCopy
+RUN apt-get update && \
+    apt-get -y install curl libunwind8 gettext apt-transport-https && \
+    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg && \
+    mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg && \
+    sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" > /etc/apt/sources.list.d/dotnetdev.list' && \
+    apt-get update && \
+    apt-get -y install dotnet-sdk-2.0.2
+
+ENV PATH = $PATH:$HOME/dotnet
+
+RUN wget -O azcopy.tar.gz https://aka.ms/downloadazcopyprlinux && \
+    tar -xf azcopy.tar.gz && \
+    apt-get -y install rsync && \
+    ./install.sh
+
+#install hugo
+RUN wget https://github.com/gohugoio/hugo/releases/download/v0.36.1/hugo_0.36.1_Linux-64bit.deb  && \
+    dpkg -i hugo_0.36.1_Linux-64bit.deb && \
+    apt-get install -f
+
+#install plugins
+COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
+
+USER jenkins 
