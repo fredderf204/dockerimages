@@ -2,7 +2,7 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-#install Azure CLI
+#install Azure CLI - https://github.com/Azure/azure-cli/issues/3720
 RUN curl https://azurecliprod.blob.core.windows.net/release-2-0-25/debian_stretch_azure-cli_2.0.25-1_all.deb -o debian_stretch_azure-cli_2.0.25-1_all.deb && \
     dpkg -i debian_stretch_azure-cli_2.0.25-1_all.deb
 
